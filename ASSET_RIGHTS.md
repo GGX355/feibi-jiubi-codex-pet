@@ -4,6 +4,6 @@
 - 桌宠图像是为本项目新绘制和逐帧加工的素材。制作时参考了用户提供的菲比 Q 版截图、社区二创形象和原 A/B 桌宠的垂手姿势。仓库没有收录用户提供的截图或 A/B 图集。
 - 仓库公开图集、GIF 和预览图，便于查看和个人使用；MIT License **不适用**于这些图像。仓库不声称可以替角色权利人授予商业使用或再授权许可。
 - 本地语音试听曾参考 [Genius-Society/phoebe_chubby](https://github.com/Genius-Society/phoebe_chubby)。该仓库标示 CC BY-NC-SA 4.0，并列有来自多个视频与网站的语音来源。由于不能据此确认每段录音的完整再分发权限，本公开仓库不包含原声、净化版录音，也不包含内嵌录音的离线 HTML。
-- 预览网页和 `scripts/make_preview.py` 的代码按仓库 [MIT License](LICENSE) 提供。
+- 预览网页和 `scripts/` 下的构建代码按仓库 [MIT License](LICENSE) 提供。
 
 若你是素材权利人并对仓库中的图像有疑问，请通过 GitHub issue 联系仓库维护者。

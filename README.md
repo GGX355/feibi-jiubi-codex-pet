@@ -29,7 +29,7 @@
 | `review` | 得意点头 | 6 |
 | look directions | 顺时针十六方向 | 16 |
 
-图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损版；Codex 加载 `pet/spritesheet.webp`。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成（需 Pillow）。
+图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损源文件；运行 `python scripts/build_pet.py` 可从它重建 `pet/spritesheet.webp` 并逐像素核对，Codex 加载 WebP 文件。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成。两段脚本均需 Pillow。
 
 ## 声音和后续计划
 
@@ -37,4 +37,4 @@ Codex 原生自定义宠物包只加载图集，不播放仓库自带语音。�
 
 ## 许可与署名
 
-预览网页和预览图生成脚本采用 [MIT License](LICENSE)。角色图像是基于《鸣潮》菲比的二创，不归入 MIT 许可；具体来源和使用边界见 [ASSET_RIGHTS.md](ASSET_RIGHTS.md)。本项目与库洛游戏、OpenAI 没有官方关联。
+预览网页和构建脚本采用 [MIT License](LICENSE)。角色图像是基于《鸣潮》菲比的二创，不归入 MIT 许可；具体来源和使用边界见 [ASSET_RIGHTS.md](ASSET_RIGHTS.md)。本项目与库洛游戏、OpenAI 没有官方关联。

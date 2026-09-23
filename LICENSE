@@ -1,4 +1,4 @@
-Scope: This MIT license applies only to preview/index.html and scripts/make_preview.py. Character artwork, sprite atlases, GIFs, screenshots, and third-party references are excluded. See ASSET_RIGHTS.md.
+Scope: This MIT license applies only to preview/index.html and scripts/*.py. Character artwork, sprite atlases, GIFs, screenshots, and third-party references are excluded. See ASSET_RIGHTS.md.
 
 MIT License
 
