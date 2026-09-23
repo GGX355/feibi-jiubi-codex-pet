@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>菲比啾比 · Codex 桌宠动作预览</title>
+  <style>
+    :root{font-family:ui-sans-serif,"Microsoft YaHei",system-ui,sans-serif;color:#30283c;background:#f8f5fb}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh}
+    main{max-width:1020px;margin:auto;padding:32px 24px 50px}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}
+    .kicker{margin:0 0 6px;color:#806e98;font-size:12px;font-weight:800;letter-spacing:.16em}
+    h1{font-size:clamp(24px,4vw,39px);line-height:1.2;margin:0}
+    .sub{color:#776b85;line-height:1.7;margin:12px 0 0}
+    .badge{border:1px solid #dfd3ec;background:white;border-radius:999px;padding:9px 13px;font-size:12px;color:#765d9c;white-space:nowrap}
+    .layout{display:grid;grid-template-columns:minmax(320px,1.25fr) minmax(275px,.8fr);gap:20px}
+    .stage,.controls{border:1px solid #e8dff0;background:white;border-radius:24px;box-shadow:0 15px 40px #6050780c}
+    .stage{padding:15px}
+    .stage-inner{position:relative;display:grid;place-items:center;min-height:480px;border-radius:16px;background:linear-gradient(155deg,#fdfaf3,#f5edf9);overflow:hidden}
+    .stage-inner.dark{background:#292535}
+    canvas{width:min(90%,384px);height:auto;aspect-ratio:192/208;image-rendering:auto}
+    .stage-tag{position:absolute;top:17px;left:18px;color:#8d7d9f;font-size:12px;font-weight:700;letter-spacing:.12em}
+    .dark .stage-tag{color:#d9cae9}
+    .stage-foot{display:flex;justify-content:space-between;gap:8px;padding:14px 7px 3px;font-size:13px;color:#776b85}
+    .controls{padding:21px}
+    h2{margin:0 0 12px;font-size:17px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    button{font:inherit;cursor:pointer;border:1px solid #e9e2ef;border-radius:11px;padding:11px 8px;background:#fff;color:#534361;transition:.18s ease}
+    button:hover{border-color:#b8a1d3;background:#faf6ff}
+    button.active{background:#534766;color:white;border-color:#534766}
+    .bar{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+    .bar button{font-size:13px;padding:9px 13px}
+    .direction{margin-top:18px;border-top:1px solid #eee7f4;padding-top:15px}
+    label{font-size:13px;font-weight:700}
+    input[type=range]{display:block;width:100%;accent-color:#7863a1;margin:15px 0}
+    .note{font-size:12px;color:#82758e;line-height:1.6;margin:18px 0 0}
+    @media(max-width:720px){header{display:block}.badge{display:inline-block;margin-top:14px}.layout{grid-template-columns:1fr}.stage-inner{min-height:380px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><p class="kicker">PHOEBE JIUBI · FAN-MADE CODEX PET</p><h1>菲比啾比 · 双臂重绘版</h1><p class="sub">预览九组动作与十六方向注视。桌宠图集为 8 × 11、单格 192 × 208。</p></div>
+    <span class="badge">非官方二创 · 无音频公开包</span>
+  </header>
+  <div class="layout">
+    <section class="stage" aria-label="动作预览舞台">
+      <div class="stage-inner" id="stage"><span class="stage-tag">CODEX PET PREVIEW</span><canvas id="pet" width="384" height="416" aria-label="桌宠动作画面"></canvas></div>
+      <div class="stage-foot"><span id="status">待机 · 眨眼</span><span id="frame">1 / 6</span></div>
+    </section>
+    <section class="controls" aria-label="预览控制">
+      <h2>选择动作</h2>
+      <div class="grid" id="actions"></div>
+      <div class="bar"><button id="play">暂停</button><button id="step">下一帧</button><button id="bg">深色背景</button></div>
+      <div class="direction"><label for="angle">十六方向注视 · <output id="angleLabel">↑ 0°</output></label><input type="range" id="angle" min="0" max="15" step="1" value="0"></div>
+      <p class="note">这是静态图集的网页预览。Codex 原生版按任务状态和鼠标交互触发动作；本页可手动选择，预览节奏不代表应用内的实际时序。</p>
+    </section>
+  </div>
+</main>
+<script>
+  const STATES=[
+    ['idle','眨眨眼',0,6,370],['running-right','向右移动',1,8,150],
+    ['running-left','向左移动',2,8,150],['waving','挥手招呼',3,4,190],
+    ['jumping','开心跳跃',4,5,185],['failed','委屈鼓脸',5,8,190],
+    ['waiting','搓手等待',6,6,200],['running','认真开工',7,6,175],
+    ['review','得意点头',8,6,200],['look','十六方向',9,16,0]
+  ];
+  const atlas=new Image(); atlas.src='../pet/spritesheet.webp';
+  const canvas=document.getElementById('pet'),ctx=canvas.getContext('2d');
+  const actions=document.getElementById('actions'),status=document.getElementById('status'),counter=document.getElementById('frame');
+  let state=STATES[0],frame=0,playing=true,timer=null,angle=0;
+  for(const item of STATES){const button=document.createElement('button');button.textContent=item[1];button.dataset.state=item[0];button.addEventListener('click',()=>select(item));actions.append(button)}
+  function draw(){
+    if(!atlas.complete||!atlas.naturalWidth)return;
+    const n=state[0]==='look'?angle:frame;
+    const row=state[0]==='look'?9+Math.floor(n/8):state[2];
+    const col=state[0]==='look'?n%8:n;
+    ctx.clearRect(0,0,384,416);
+    ctx.drawImage(atlas,col*192,row*208,192,208,0,0,384,416);
+    status.textContent=state[1];counter.textContent=state[0]==='look'?`${Math.round(angle*22.5)}°`:`${frame+1} / ${state[3]}`;
+  }
+  function schedule(){clearTimeout(timer);if(!playing||state[0]==='look')return;timer=setTimeout(()=>{frame=(frame+1)%state[3];draw();schedule()},state[4])}
+  function select(item){state=item;frame=0;for(const button of actions.children)button.classList.toggle('active',button.dataset.state===item[0]);draw();schedule()}
+  document.getElementById('play').addEventListener('click',e=>{playing=!playing;e.currentTarget.textContent=playing?'暂停':'播放';schedule()});
+  document.getElementById('step').addEventListener('click',()=>{if(state[0]==='look')angle=(angle+1)%16;else frame=(frame+1)%state[3];document.getElementById('angle').value=angle;draw()});
+  document.getElementById('bg').addEventListener('click',e=>{const dark=document.getElementById('stage').classList.toggle('dark');e.currentTarget.textContent=dark?'浅色背景':'深色背景'});
+  document.getElementById('angle').addEventListener('input',e=>{angle=Number(e.target.value);const arrows=['↑','↗','→','↘','↓','↙','←','↖'];document.getElementById('angleLabel').textContent=`${arrows[Math.floor((angle+1)/2)%8]} ${Math.round(angle*22.5)}°`;select(STATES[9])});
+  atlas.addEventListener('load',draw);
+  atlas.addEventListener('error',()=>{status.textContent='图集加载失败，请检查 pet/spritesheet.webp'});
+  select(STATES[0]);
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){playing=false;document.getElementById('play').textContent='播放';schedule()}
+</script>
+</body>
+</html>
