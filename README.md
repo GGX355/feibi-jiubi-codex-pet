@@ -2,9 +2,9 @@
 
 一只非官方的《鸣潮》菲比二创桌宠：待机时袖子自然垂下，袖口放宽，手套缩小。包含 Codex 自定义桌宠图集、九组标准动作和十六方向注视。
 
-![菲比啾比动作预览](preview/cover.png)
-
-![待机动画](preview/idle.gif)
+| 向左跑 | 跳跃 | 工作状态 |
+| :---: | :---: | :---: |
+| ![菲比啾比向左跑](preview/run-left.gif) | ![菲比啾比跳跃](preview/jump.gif) | ![菲比啾比工作中](preview/working.gif) |
 
 ## 安装
 
@@ -29,7 +29,7 @@
 | `review` | 得意点头 | 6 |
 | look directions | 顺时针十六方向 | 16 |
 
-图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损源文件；运行 `python scripts/build_pet.py` 可从它重建 `pet/spritesheet.webp` 并逐像素核对，Codex 加载 WebP 文件。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成。两段脚本均需 Pillow。
+图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损源文件；运行 `python scripts/build_pet.py` 可从它重建 `pet/spritesheet.webp` 并逐像素核对，Codex 加载 WebP 文件。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成；页首三段动图可通过 `python scripts/make_action_gifs.py` 重新生成。这些脚本均需 Pillow。
 
 ## 声音和后续计划
 
