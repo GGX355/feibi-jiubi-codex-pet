@@ -1,4 +1,4 @@
-"""Build the three README animations from the released spritesheet.
+"""Build all nine standard-action GIFs from the released spritesheet.
 
 Requires Pillow: python -m pip install Pillow
 """
@@ -13,15 +13,22 @@ CELL = (192, 208)
 SIZE = (384, 416)
 BACKGROUND = "#fffaf0"
 
-# Match the frame order and approximate playback timing of Codex pet v2.
+# Rows 0-8 are the standard Codex pet actions. Durations are in milliseconds.
 ACTIONS = {
-    "run-left.gif": (2, 8, 120, 220),
-    "jump.gif": (4, 5, 140, 280),
-    "working.gif": (7, 6, 120, 220),
+    "idle.gif": (0, [520, 100, 90, 100, 160, 530]),
+    "run-right.gif": (1, [120] * 7 + [220]),
+    "run-left.gif": (2, [120] * 7 + [220]),
+    "waving.gif": (3, [190] * 3 + [280]),
+    "jump.gif": (4, [140] * 4 + [280]),
+    "failed.gif": (5, [190] * 7 + [280]),
+    "waiting.gif": (6, [200] * 5 + [300]),
+    "working.gif": (7, [120] * 5 + [220]),
+    "review.gif": (8, [200] * 5 + [300]),
 }
 
 
-def build(name: str, row: int, count: int, frame_ms: int, last_ms: int) -> None:
+def build(name: str, row: int, durations: list[int]) -> None:
+    count = len(durations)
     frames = []
     for col in range(count):
         rect = (col * CELL[0], row * CELL[1], (col + 1) * CELL[0], (row + 1) * CELL[1])
@@ -40,7 +47,7 @@ def build(name: str, row: int, count: int, frame_ms: int, last_ms: int) -> None:
         OUT / name,
         save_all=True,
         append_images=indexed[1:],
-        duration=[frame_ms] * (count - 1) + [last_ms],
+        duration=durations,
         loop=0,
         disposal=2,
         optimize=False,

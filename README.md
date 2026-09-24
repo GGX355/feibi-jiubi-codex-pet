@@ -2,9 +2,19 @@
 
 一只非官方的《鸣潮》菲比二创桌宠：待机时袖子自然垂下，袖口放宽，手套缩小。包含 Codex 自定义桌宠图集、九组标准动作和十六方向注视。
 
-| 向左跑 | 跳跃 | 工作状态 |
+## 九组动作动图
+
+| 待机 | 向右跑 | 向左跑 |
 | :---: | :---: | :---: |
-| ![菲比啾比向左跑](preview/run-left.gif) | ![菲比啾比跳跃](preview/jump.gif) | ![菲比啾比工作中](preview/working.gif) |
+| ![菲比啾比待机](preview/idle.gif) | ![菲比啾比向右跑](preview/run-right.gif) | ![菲比啾比向左跑](preview/run-left.gif) |
+
+| 挥手 | 跳跃 | 失败·委屈鼓脸 |
+| :---: | :---: | :---: |
+| ![菲比啾比挥手](preview/waving.gif) | ![菲比啾比跳跃](preview/jump.gif) | ![菲比啾比委屈鼓脸](preview/failed.gif) |
+
+| 等待·搓手 | 工作状态 | 复核·点头 |
+| :---: | :---: | :---: |
+| ![菲比啾比等待](preview/waiting.gif) | ![菲比啾比工作中](preview/working.gif) | ![菲比啾比复核点头](preview/review.gif) |
 
 ## 安装
 
@@ -29,7 +39,7 @@
 | `review` | 得意点头 | 6 |
 | look directions | 顺时针十六方向 | 16 |
 
-图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损源文件；运行 `python scripts/build_pet.py` 可从它重建 `pet/spritesheet.webp` 并逐像素核对，Codex 加载 WebP 文件。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成；页首三段动图可通过 `python scripts/make_action_gifs.py` 重新生成。这些脚本均需 Pillow。
+图集为 8 × 11 格、1536 × 2288 像素，每格 192 × 208。`preview/spritesheet.png` 是便于编辑的无损源文件；运行 `python scripts/build_pet.py` 可从它重建 `pet/spritesheet.webp` 并逐像素核对，Codex 加载 WebP 文件。本机按 v2 结构校验通过。预览封面可通过 `python scripts/make_preview.py` 重新生成；页首九段动图可通过 `python scripts/make_action_gifs.py` 重新生成。这些脚本均需 Pillow。
 
 ## 声音和后续计划
 
