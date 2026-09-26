@@ -34,7 +34,7 @@ def main() -> None:
     draw = ImageDraw.Draw(board)
     draw.text((72, 38), "PHOEBE JIUBI", font=font(42), fill="#3c304c")
     draw.text((72, 103), "Codex pet · fan-made animation preview", font=font(22), fill="#826f98")
-    poses = [(0, 0, "Idle"), (3, 1, "Wave"), (4, 2, "Jump")]
+    poses = [(6, 0, "Waiting"), (7, 0, "Working"), (8, 2, "Ready")]
     for i, (row, column, label) in enumerate(poses):
         x = 65 + i * 410
         draw.rounded_rectangle((x, 177, x + 350, 570), radius=28, fill="#fffaf0")

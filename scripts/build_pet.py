@@ -5,7 +5,7 @@ Requires Pillow: python -m pip install Pillow
 
 import json
 from pathlib import Path
-from PIL import Image, ImageChops
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 PNG = ROOT / "preview" / "spritesheet.png"
@@ -22,7 +22,7 @@ def main() -> None:
     assert atlas.size == (1536, 2288), atlas.size
     atlas.save(WEBP, format="WEBP", lossless=True, exact=True)
     with Image.open(WEBP) as encoded:
-        assert ImageChops.difference(atlas, encoded.convert("RGBA")).getbbox() is None
+        assert atlas.tobytes() == encoded.convert("RGBA").tobytes()
     print(f"Built {WEBP} from {PNG}; RGBA pixels verified")
 
 

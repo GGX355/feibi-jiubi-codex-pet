@@ -1,95 +1,30 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>菲比啾比 · Codex 桌宠动作预览</title>
-  <style>
-    :root{font-family:ui-sans-serif,"Microsoft YaHei",system-ui,sans-serif;color:#30283c;background:#f8f5fb}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh}
-    main{max-width:1020px;margin:auto;padding:32px 24px 50px}
-    header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}
-    .kicker{margin:0 0 6px;color:#806e98;font-size:12px;font-weight:800;letter-spacing:.16em}
-    h1{font-size:clamp(24px,4vw,39px);line-height:1.2;margin:0}
-    .sub{color:#776b85;line-height:1.7;margin:12px 0 0}
-    .badge{border:1px solid #dfd3ec;background:white;border-radius:999px;padding:9px 13px;font-size:12px;color:#765d9c;white-space:nowrap}
-    .layout{display:grid;grid-template-columns:minmax(320px,1.25fr) minmax(275px,.8fr);gap:20px}
-    .stage,.controls{border:1px solid #e8dff0;background:white;border-radius:24px;box-shadow:0 15px 40px #6050780c}
-    .stage{padding:15px}
-    .stage-inner{position:relative;display:grid;place-items:center;min-height:480px;border-radius:16px;background:linear-gradient(155deg,#fdfaf3,#f5edf9);overflow:hidden}
-    .stage-inner.dark{background:#292535}
-    canvas{width:min(90%,384px);height:auto;aspect-ratio:192/208;image-rendering:auto}
-    .stage-tag{position:absolute;top:17px;left:18px;color:#8d7d9f;font-size:12px;font-weight:700;letter-spacing:.12em}
-    .dark .stage-tag{color:#d9cae9}
-    .stage-foot{display:flex;justify-content:space-between;gap:8px;padding:14px 7px 3px;font-size:13px;color:#776b85}
-    .controls{padding:21px}
-    h2{margin:0 0 12px;font-size:17px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    button{font:inherit;cursor:pointer;border:1px solid #e9e2ef;border-radius:11px;padding:11px 8px;background:#fff;color:#534361;transition:.18s ease}
-    button:hover{border-color:#b8a1d3;background:#faf6ff}
-    button.active{background:#534766;color:white;border-color:#534766}
-    .bar{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
-    .bar button{font-size:13px;padding:9px 13px}
-    .direction{margin-top:18px;border-top:1px solid #eee7f4;padding-top:15px}
-    label{font-size:13px;font-weight:700}
-    input[type=range]{display:block;width:100%;accent-color:#7863a1;margin:15px 0}
-    .note{font-size:12px;color:#82758e;line-height:1.6;margin:18px 0 0}
-    @media(max-width:720px){header{display:block}.badge{display:inline-block;margin-top:14px}.layout{grid-template-columns:1fr}.stage-inner{min-height:380px}}
-  </style>
-</head>
-<body>
-<main>
-  <header>
-    <div><p class="kicker">PHOEBE JIUBI · FAN-MADE CODEX PET</p><h1>菲比啾比 · 双臂重绘版</h1><p class="sub">预览九组动作与十六方向注视。桌宠图集为 8 × 11、单格 192 × 208。</p></div>
-    <span class="badge">非官方二创 · 无音频公开包</span>
-  </header>
-  <div class="layout">
-    <section class="stage" aria-label="动作预览舞台">
-      <div class="stage-inner" id="stage"><span class="stage-tag">CODEX PET PREVIEW</span><canvas id="pet" width="384" height="416" aria-label="桌宠动作画面"></canvas></div>
-      <div class="stage-foot"><span id="status">待机 · 眨眼</span><span id="frame">1 / 6</span></div>
-    </section>
-    <section class="controls" aria-label="预览控制">
-      <h2>选择动作</h2>
-      <div class="grid" id="actions"></div>
-      <div class="bar"><button id="play">暂停</button><button id="step">下一帧</button><button id="bg">深色背景</button></div>
-      <div class="direction"><label for="angle">十六方向注视 · <output id="angleLabel">↑ 0°</output></label><input type="range" id="angle" min="0" max="15" step="1" value="0"></div>
-      <p class="note">这是静态图集的网页预览。Codex 原生版按任务状态和鼠标交互触发动作；本页可手动选择，预览节奏不代表应用内的实际时序。</p>
-    </section>
-  </div>
-</main>
-<script>
-  const STATES=[
-    ['idle','眨眨眼',0,6,370],['running-right','向右移动',1,8,150],
-    ['running-left','向左移动',2,8,150],['waving','挥手招呼',3,4,190],
-    ['jumping','开心跳跃',4,5,185],['failed','委屈鼓脸',5,8,190],
-    ['waiting','搓手等待',6,6,200],['running','认真开工',7,6,175],
-    ['review','得意点头',8,6,200],['look','十六方向',9,16,0]
-  ];
-  const atlas=new Image(); atlas.src='../pet/spritesheet.webp';
-  const canvas=document.getElementById('pet'),ctx=canvas.getContext('2d');
-  const actions=document.getElementById('actions'),status=document.getElementById('status'),counter=document.getElementById('frame');
-  let state=STATES[0],frame=0,playing=true,timer=null,angle=0;
-  for(const item of STATES){const button=document.createElement('button');button.textContent=item[1];button.dataset.state=item[0];button.addEventListener('click',()=>select(item));actions.append(button)}
-  function draw(){
-    if(!atlas.complete||!atlas.naturalWidth)return;
-    const n=state[0]==='look'?angle:frame;
-    const row=state[0]==='look'?9+Math.floor(n/8):state[2];
-    const col=state[0]==='look'?n%8:n;
-    ctx.clearRect(0,0,384,416);
-    ctx.drawImage(atlas,col*192,row*208,192,208,0,0,384,416);
-    status.textContent=state[1];counter.textContent=state[0]==='look'?`${Math.round(angle*22.5)}°`:`${frame+1} / ${state[3]}`;
-  }
-  function schedule(){clearTimeout(timer);if(!playing||state[0]==='look')return;timer=setTimeout(()=>{frame=(frame+1)%state[3];draw();schedule()},state[4])}
-  function select(item){state=item;frame=0;for(const button of actions.children)button.classList.toggle('active',button.dataset.state===item[0]);draw();schedule()}
-  document.getElementById('play').addEventListener('click',e=>{playing=!playing;e.currentTarget.textContent=playing?'暂停':'播放';schedule()});
-  document.getElementById('step').addEventListener('click',()=>{if(state[0]==='look')angle=(angle+1)%16;else frame=(frame+1)%state[3];document.getElementById('angle').value=angle;draw()});
-  document.getElementById('bg').addEventListener('click',e=>{const dark=document.getElementById('stage').classList.toggle('dark');e.currentTarget.textContent=dark?'浅色背景':'深色背景'});
-  document.getElementById('angle').addEventListener('input',e=>{angle=Number(e.target.value);const arrows=['↑','↗','→','↘','↓','↙','←','↖'];document.getElementById('angleLabel').textContent=`${arrows[Math.floor((angle+1)/2)%8]} ${Math.round(angle*22.5)}°`;select(STATES[9])});
-  atlas.addEventListener('load',draw);
-  atlas.addEventListener('error',()=>{status.textContent='图集加载失败，请检查 pet/spritesheet.webp'});
-  select(STATES[0]);
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){playing=false;document.getElementById('play').textContent='播放';schedule()}
-</script>
-</body>
-</html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>菲比啾比 · 坐姿九动作整合版</title>
+<style>
+:root{font-family:"Microsoft YaHei",system-ui,sans-serif;color:#44384d;background:#f6f2ed}*{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:auto;padding:32px 24px 60px}h1{font-size:32px;margin:8px 0 12px}p{line-height:1.8;color:#827487}.eyebrow{color:#947496;font-size:12px;letter-spacing:.12em}.toolbar{background:#f6f2edf5;padding:14px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}button,select,.download{font:inherit;font-size:13px;border:1px solid #dfd2df;border-radius:20px;padding:9px 14px;background:#fff;color:#6a4d73;cursor:pointer}button:hover{background:#eee2f1}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #947496;outline-offset:3px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{border:1px solid #e5dbe5;background:#fffaf0;border-radius:23px;text-align:center;padding:19px 12px}.card.new{border-color:#bd9cc7}.tag{font-size:11px;color:#987c9f}.card h2{font-size:19px;margin:6px 0}.stage{height:280px;display:grid;place-items:center}img.sprite{width:240px;height:260px;object-fit:contain}.small img.sprite{width:192px;height:208px}.caption{font-size:13px;margin:6px 0}.frame{font-size:11px;color:#ac97b0}.gif{font-size:12px;color:#8b6994;margin-left:8px}.dark .stage{background:#302c39;border-radius:14px}.look{margin-top:22px;display:flex;gap:28px;align-items:center;padding:22px 28px;background:#fffaf0;border:1px solid #e5dbe5;border-radius:23px}.look h2{font-size:20px}.look input{width:min(350px,100%);accent-color:#947496}.look .stage{flex-shrink:0}.note{font-size:13px}.links{display:flex;gap:15px;flex-wrap:wrap;margin-top:20px}a{color:#896192}#error{color:#a33}.download{text-decoration:none}.new .tag{color:#9766a5}@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){main{padding:24px 14px}.grid{grid-template-columns:1fr}.look{flex-direction:column;gap:8px}h1{font-size:26px}}
+</style></head><body><main>
+<div class="eyebrow">PHOEBE JIUBI · NINE ACTIONS</div><h1>菲比啾比 · 坐姿九动作整合版</h1>
+<p>坐着打字、托腮等待、伸懒腰收工，和原来的六组动作放在一起。<br>三个坐姿动作已写入同一份桌宠图集，下面直接播放这份图集。</p>
+<div class="toolbar"><button id="play">暂停全部</button><button id="step">全部下一帧</button><button id="restart">从头播放</button><label>速度 <select id="speed"><option value="1">单轮原速</option><option value="0.5">半速观察</option></select></label><button id="size">原尺寸查看</button><button id="background">深色背景</button></div>
+<p id="error" role="alert" hidden></p><div class="grid" id="grid" aria-label="完整九动作预览"></div>
+<section class="look"><div class="stage"><img class="sprite" id="look" src="assets/9-0.png" alt="十六方向注视"></div><div><div class="eyebrow">原有注视动作保留</div><h2>十六方向注视</h2><label for="direction">拖动查看方向 · <output id="degree">0° · 向上</output></label><p><input id="direction" type="range" min="0" max="15" value="0" step="1"></p><p class="note">注视仍使用原来的站姿形象。</p></div></section>
+<p class="note">这里持续循环展示每组动作；半速仅用于观察。Codex 中由实际状态触发，播放次数和切换时机由应用决定。<br>待机仍是站姿，坐姿与待机之间仍会直接换姿势。安装方法见仓库 README；本页是素材预览。</p>
+<div class="links"><a class="download" href="../pet/">桌宠文件</a><a href="spritesheet.png">完整图集</a><a href="../README.md">安装与版本说明</a></div>
+</main><script src="actions.js"></script><script>
+let actions=[],playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,speed=1,last=0,ready=false;
+const grid=document.querySelector('#grid'),play=document.querySelector('#play');
+function label(){play.textContent=playing?'暂停全部':'播放全部'}label();
+function render(image,row,col){image.src=`assets/${row}-${col}.png`}
+function draw(a){render(a.canvas,a.row,a.frame);a.counter.textContent=`${a.frame+1} / ${a.times.length}`}
+function look(){if(!ready)return;const n=Number(document.querySelector('#direction').value);render(document.querySelector('#look'),9+Math.floor(n/8),n%8);const names=['向上','右上','右上','右上','向右','右下','右下','右下','向下','左下','左下','左下','向左','左上','左上','左上'];document.querySelector('#degree').textContent=`${n*22.5}° · ${names[n]}`}
+play.addEventListener('click',()=>{playing=!playing;label()});
+document.querySelector('#step').addEventListener('click',()=>{if(!ready)return;playing=false;label();actions.forEach(a=>{a.frame=(a.frame+1)%a.times.length;a.elapsed=0;draw(a)})});
+document.querySelector('#restart').addEventListener('click',()=>{if(!ready)return;actions.forEach(a=>{a.frame=0;a.elapsed=0;draw(a)});playing=true;label()});
+document.querySelector('#speed').addEventListener('change',e=>{speed=Number(e.target.value)});
+document.querySelector('#size').addEventListener('click',e=>{const small=document.body.classList.toggle('small');e.target.textContent=small?'放大查看':'原尺寸查看'});
+document.querySelector('#background').addEventListener('click',e=>{const dark=document.body.classList.toggle('dark');e.target.textContent=dark?'浅色背景':'深色背景'});
+document.querySelector('#direction').addEventListener('input',look);
+function tick(now){const dt=last?Math.min(now-last,200)*speed:0;last=now;if(ready&&playing)actions.forEach(a=>{a.elapsed+=dt;let changed=false;while(a.elapsed>=a.times[a.frame]){a.elapsed-=a.times[a.frame];a.frame=(a.frame+1)%a.times.length;changed=true}if(changed)draw(a)});requestAnimationFrame(tick)}
+async function init(){try{actions=PET_ACTIONS.map(a=>({...a}));for(const a of actions){const card=document.createElement('section');card.className='card'+(a.row>=6?' new':'');card.innerHTML=`<div class="tag">${a.row>=6?'坐姿更新':'原动作保留'} · ${a.id.toUpperCase()}</div><h2>${a.name}</h2><div class="stage"><img class="sprite" src="assets/${a.row}-0.png" alt="${a.name}"></div><p class="caption">${a.note}</p><span class="frame"></span><a class="gif" href="${a.id}.gif">GIF ↗</a>`;grid.append(card);a.canvas=card.querySelector('img');a.counter=card.querySelector('.frame');a.frame=0;a.elapsed=0;draw(a)}ready=true;look();requestAnimationFrame(tick)}catch(e){const error=document.querySelector('#error');error.hidden=false;error.textContent=e.message}}
+init();
+</script></body></html>
